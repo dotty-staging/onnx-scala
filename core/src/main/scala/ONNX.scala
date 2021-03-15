@@ -12,6 +12,7 @@ import spire.math.Numeric
 import spire.implicits._
 import spire.algebra.Field
 import org.emergentorder.onnx.Tensors._
+import scala.compiletime.ops.int
 import scala.compiletime.ops.int._
 import io.kjaer.compiletime._
 import io.kjaer.compiletime.Shape.NumElements
@@ -2032,7 +2033,7 @@ package object onnx {
         name: String,
         A: Tensor[T, Tuple3[Tt,Td,S]],
         B: Tensor[T, Tuple3[Tt1,Td1,S1]]
-    )(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[Dim0 #: Dim2 #: SNil],vd0:ValueOf[scala.compiletime.S[Dim0]],vd1:ValueOf[scala.compiletime.S[Dim1]], vd2: ValueOf[scala.compiletime.S[Dim2]]): Tensor[T, Tuple3[Tt,Td, Dim0 #: Dim2 #: SNil]] = {
+    )(using tt: ValueOf[Tt], td: TensorShapeDenotationOf[Td], s: ShapeOf[Dim0 #: Dim2 #: SNil],vd0:ValueOf[int.S[Dim0]],vd1:ValueOf[int.S[Dim1]], vd2: ValueOf[int.S[Dim2]]): Tensor[T, Tuple3[Tt,Td, Dim0 #: Dim2 #: SNil]] = {
       val map: Map[String, Any] = Map()
       val allInputs             = Tuple2(A,B)
       (callOp(name, "MatMul", allInputs, map))
