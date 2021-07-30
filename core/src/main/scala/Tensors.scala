@@ -18,7 +18,7 @@ import org.emergentorder.compiletime.##:
 
 object Tensors{
 
-  type Supported = Int | Long | Float | Double | Byte | Short | UByte | UShort | UInt | ULong | 
+  type Supported = Int | Long | Float | Double | Byte | Short | UByte | UShort | UInt | ULong |
                    Boolean | String | BFloat16 | Float16 | Complex[Float] | Complex[Double]
 
   type TensorTypeDenotation = String & Singleton
@@ -31,10 +31,10 @@ object Tensors{
   //Need this alias to not conflict with other Tensors
   //TODO: consider using TF-Java ndarray as backing instead of Scala Array here
   //S is overloaded
-  opaque type Tensor[T <: Supported, Ax <: Axes] = Tuple2[Array[T], Ax]
+  opaque type Tensor[T <: Supported, +Ax <: Axes] = Tuple2[Array[T], Ax]
 
   type SparseTensor[T <: Supported, A <: Axes] = Tensor[T, A]
- 
+
   type KeepOrReduceDims[S <: Shape, AxisIndices <: None.type | Indices, KeepDims <: (Boolean & Singleton)] <: Shape = (KeepDims) match {
         case true => ReduceKeepDims[S, AxisIndices]
         case false => Shape.Reduce[S, AxisIndices]
@@ -56,7 +56,7 @@ object Tensors{
       case false => head #: ReduceKeepDimsLoop[tail, ToReplace, S[I]]
     }
     case SNil => ToReplace match {
-      case INil => SNil 
+      case INil => SNil
     }
   }
 
@@ -164,9 +164,9 @@ object Tensors{
     case head #: tail => After match{
       case afterHead #: afterTail => PadFrom match {
         case padFromHead #: padFromTail => (head + padFromHead + afterHead) #: PaddedShapeLoop[padFromTail, tail, afterTail]
-        case SNil => SNil 
+        case SNil => SNil
       }
-      case SNil => SNil 
+      case SNil => SNil
     }
     case SNil => After match {
       case SNil => PadFrom match {
@@ -209,19 +209,19 @@ object Tensors{
   object Tensor {
     extension[T <: Supported,  Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](tens: Tensor[T,Tuple3[Tt, Td, S]]) def data = tens._1
 
-    extension[T <: Supported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](tens: Tensor[T,Tuple3[Tt, Td, S]]) def shape: Array[Int] = tens._2._3.toSeq.toArray 
- 
+    extension[T <: Supported, Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](tens: Tensor[T,Tuple3[Tt, Td, S]]) def shape: Array[Int] = tens._2._3.toSeq.toArray
+
   def tensorRequires[T <: Supported,  Tt <: TensorTypeDenotation, Td <: TensorShapeDenotation, S <: Shape](tens: Tensor[T,Tuple3[Tt,Td,S]]): Tensor[T,Tuple3[Tt, Td, S]] = {
     //require(tens._2._2.toSeq.size == tens.shape.size) //We allow empty denotations
     require(tens.data.size == tens.shape.foldLeft(1)(_ * _)) //This shouldn't fail at runtime, if so shape constraints need fixing
     tens
   }
-    def apply[T <: Supported : scala.reflect.ClassTag, Tt <: TensorTypeDenotation, TD <: TensorShapeDenotation](element: T, tt: Tt, td: TD): Tensor[T, Tuple3[Tt, TD, 1 #: SNil]] = tensorRequires((Array[T](element), (tt, td, 1 #: SNil))) 
+    def apply[T <: Supported : scala.reflect.ClassTag, Tt <: TensorTypeDenotation, TD <: TensorShapeDenotation](element: T, tt: Tt, td: TD): Tensor[T, Tuple3[Tt, TD, 1 #: SNil]] = tensorRequires((Array[T](element), (tt, td, 1 #: SNil)))
 
     def apply[T <: Supported, Tt <: TensorTypeDenotation, TD <: TensorShapeDenotation, S <: Shape](arr: Array[T], tt0: Tt, td0: TD, d0: S): Tensor[T, Tuple3[Tt, TD, S]] = tensorRequires((arr, (tt0, td0, d0)))
 
 
-    def apply[T <: Supported : scala.reflect.ClassTag](element: T): Tensor[T, Tuple3["", org.emergentorder.compiletime.TSNil, 1 #: SNil]] = tensorRequires((Array(element), ("", TSNil, 1 #: SNil))) 
+    def apply[T <: Supported : scala.reflect.ClassTag](element: T): Tensor[T, Tuple3["", org.emergentorder.compiletime.TSNil, 1 #: SNil]] = tensorRequires((Array(element), ("", TSNil, 1 #: SNil)))
 
     def apply[T <: Supported, TD <: TensorShapeDenotation, S <: Shape](arr: Array[T], td0: TD, d0: S): Tensor[T, Tuple3["", TD, S]] = tensorRequires((arr, ("", td0, d0)))
 
