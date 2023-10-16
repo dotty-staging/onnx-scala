@@ -114,7 +114,7 @@ object Tensors{
 
   type IndicesSize[AxisIndices <: Indices] = IndicesSizeLoop[AxisIndices, 0]
 
-  type IndicesSizeLoop[AxisIndices <: Indices, Acc <: Dimension] = AxisIndices match {
+  type IndicesSizeLoop[AxisIndices <: Indices, Acc <: Dimension] <: Dimension = AxisIndices match {
     case head ::: tail => IndicesSizeLoop[tail, S[Acc]]
     case INil => Acc
   }
